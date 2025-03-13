@@ -1,22 +1,28 @@
 async function fetchPokemon() {
     const name = document.getElementById("pokemonName").value.toLowerCase();
-    const url = `https://pokeapi.co/api/v2/pokemon/${name}`;
+    const pokemonUrl = `https://pokeapi.co/api/v2/pokemon/${name}`;
+    const speciesUrl = `https://pokeapi.co/api/v2/pokemon-species/${name}`;
+    const encountersUrl = `https://pokeapi.co/api/v2/pokemon/${name}/encounters`;
 
     try {
-        const response = await fetch(url);
-        if (!response.ok) {
+        const [pokemonResponse, speciesResponse, encountersResponse] = await Promise.all([
+            fetch(pokemonUrl),
+            fetch(speciesUrl),
+            fetch(encountersUrl)
+        ]);
+
+        if (!pokemonResponse.ok || !speciesResponse.ok) {
             throw new Error("Pokémon not found!");
         }
-        const data = await response.json();
-        
-        document.getElementById("result").innerHTML = `
-            <h2>${data.name.toUpperCase()}</h2>
-            <img src="${data.sprites.front_default}" alt="${data.name}">
-            <p>Type: ${data.types.map(t => t.type.name).join(", ")}</p>
-            <p>Height: ${data.height}</p>
-            <p>Weight: ${data.weight}</p>
-        `;
-    } catch (error) {
-        document.getElementById("result").innerHTML = `<p style="color: red;">${error.message}</p>`;
-    }
-}
+
+        const pokemonData = await pokemonResponse.json();
+        const speciesData = await speciesResponse.json();
+        const encountersData = await encountersResponse.json();
+
+        // Get the first English description
+        const description = speciesData.flavor_text_entries.find(entry => entry.language.name === "en")?.flavor_text || "No description available.";
+
+        // Get Pokémon types
+        const types = pokemonData.types.map(t => t.type.name).join(", ");
+
+        // Get encounter locations 
