@@ -60,6 +60,9 @@ async function fetchPokemonData(pokemonName) {
         // Get the first English description
         const description = speciesData.flavor_text_entries.find(entry => entry.language.name === "en")?.flavor_text || "No description available.";
 
+        // Get Pokémon genus (species name)
+        const genus = speciesData.genera.find(genus => genus.language.name === "en")?.genus || "Unknown";
+
         // Get Pokémon types
         const types = pokemonData.types.map(t => t.type.name).join(", ");
 
@@ -67,17 +70,33 @@ async function fetchPokemonData(pokemonName) {
         let regions = encountersData.map(encounter => encounter.location_area.name.replace(/-/g, ' '));
         regions = regions.length > 0 ? regions.join(", ") : "Unknown location";
 
+        // Get Evolution Chain
+        const evolutionChainUrl = speciesData.evolution_chain.url;
+        const evolutionResponse = await fetch(evolutionChainUrl);
+        const evolutionData = await evolutionResponse.json();
+        let evolutionText = getEvolutionChain(evolutionData.chain);
+
         document.getElementById("result").innerHTML = `
             <h2>${pokemonData.name.toUpperCase()}</h2>
             <img src="${pokemonData.sprites.front_default}" alt="${pokemonData.name}">
             <p><strong>Type:</strong> ${types}</p>
             <p><strong>Height:</strong> ${pokemonData.height}</p>
             <p><strong>Weight:</strong> ${pokemonData.weight}</p>
-            <p><strong>Species:</strong> ${speciesData.genera.find(genus => genus.language.name === "en")?.genus || "Unknown"}</p>
+            <p><strong>Species:</strong> ${genus}</p>
             <p><strong>Description:</strong> ${description}</p>
             <p><strong>Regions Found:</strong> ${regions}</p>
+            <p><strong>Evolution Chain:</strong> ${evolutionText}</p>
         `;
     } catch (error) {
         document.getElementById("result").innerHTML = `<p style="color: red;">${error.message}</p>`;
     }
+}
+
+function getEvolutionChain(chain) {
+    let evolutionNames = [];
+    while (chain) {
+        evolutionNames.push(chain.species.name);
+        chain = chain.evolves_to[0]; // Get the next evolution stage
+    }
+    return evolutionNames.join(" → ");
 }
