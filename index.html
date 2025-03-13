@@ -1,17 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokédex</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <h1>Pokédex</h1>
-    <input type="text" id="pokemonName" placeholder="Enter Pokémon name">
-    <button onclick="fetchPokemon()">Search</button>
-    <div id="result"></div>
+<h2>Search Pokémon by Name</h2>
+<input type="text" id="pokemonName" placeholder="Enter Pokémon name">
+<button onclick="fetchPokemon()">Search</button>
 
-    <script src="script.js"></script>
-</body>
-</html>
+<h2>Search Pokémon by Species</h2>
+<input type="text" id="speciesName" placeholder="Enter Pokémon species">
+<button onclick="fetchPokemonBySpecies()">Search</button>
+
+<div id="result"></div>
+
+<script src="script.js"></script>
